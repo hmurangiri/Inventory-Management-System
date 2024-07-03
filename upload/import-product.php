@@ -1,4 +1,98 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: " . $loc . "../user/login.php");
+    exit();
+}
+
+$home = '../';
+$home2 = '../';
+
+$title = 'Import Product';
+$desc = '';
+$keywords = '';
+
+include '../utilities/inventory_menu.php';
+include_once '../db/config.php';
+?>
+
+<div class="container content">
+
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <header class="header">
+                <div>
+                    <p id="description" class="text-center">
+                        Import Products
+                    </p>
+                </div>
+            </header>
+        </div>
+
+
+        <div class="form-wrap">
+            <form id="survey-form" method="post" enctype="multipart/form-data" onsubmit="return validateFileSize()">
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label id="product-import-label" for="name">Select Csv File To Import:</label>
+                            <input type="file" name="csvfile" id="fileToUpload">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label id="product-delimiter-label" for="name">Delimiter: </label>
+                            <input type="text" name="delimiter" id="delimiter" value=","
+                                placeholder="Specify the delimiter used" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 container text-center">
+                        <button type="submit" id="submit" name="preview"
+                            class="btn btn-primary btn-block">Preview</button>
+                    </div>
+
+                    <div class="col-md-4 container text-center">
+                        <button type="submit" id="submit" name="upload"
+                            class="btn btn-primary btn-block">Upload</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="message-info">
+    <h1>Expected Columns:</h1>
+    <table style="width:100%;">
+        <tr>
+            <th>Name</th>
+            <th>Desc</th>
+            <th>Category</th>
+        </tr>
+    </table>
+</div>
+
+<script>
+    function validateFileSize() {
+        const fileInput = document.getElementById('fileToUpload');
+        const maxSize = 2 * 1024 * 1024; // 2 MB in bytes
+
+        if (fileInput.files[0].size > maxSize) {
+            alert("The file is too large. Maximum size is 2MB.");
+            fileInput.value = ''; // Clear the file input
+            return false;
+        }
+        return true;
+    }
+</script>
+
+<?php
 function sanitize($input)
 {
     $input = htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
@@ -7,31 +101,7 @@ function sanitize($input)
     return $input;
 }
 
-function generateHTML($tag, $number) {
-    for($i = 0; $i < $number; $i++) {
-        echo "<" . $tag . ">" . htmlspecialchars(sanitize($data[0])) . "</" . $tag . ">";
-    }
-}
-
-function getInfo($message) {
-    echo "<table style='margin-top:10px;border:none;'>";
-    echo "<tr style='border:none;'><td style='border:none;'>";
-    
-    if ($message == "imported") {
-        echo  $imported_rows . " out of " . $total_rows . " imported!";
-    } else if ($message == "openError") {
-        echo "Failed to open the file.";
-    } else if ($message == "uploadError") {
-        echo "Please upload a valid CSV file.";
-    }
-    
-    echo "</td></tr></table>";
-}
-
-
-
-function getResponse($numberOfColumns) {
-    if (((isset($_POST['preview'])) or (isset($_POST['upload']))) && isset($_FILES['csvfile'])) {
+if (((isset($_POST['preview'])) or (isset($_POST['upload']))) && isset($_FILES['csvfile'])) {
     $filename = $_FILES['csvfile']['tmp_name'];
     $fileType = pathinfo($_FILES['csvfile']['name'], PATHINFO_EXTENSION);
     $delimiter = htmlspecialchars($_POST['delimiter']); ?>
@@ -130,6 +200,8 @@ function getResponse($numberOfColumns) {
                         echo "</tr>";
                         
                         continue;
+                        
+                        // echo "Category not found";
                     }
                 }
                 
@@ -137,16 +209,33 @@ function getResponse($numberOfColumns) {
                     echo "</table>";
                 }
                 
-                getInfo("imported");
+                echo "<table style='margin-top:10px;border:none;'>";
+                echo "<tr style='border:none;'><td style='border:none;'>" . $imported_rows . " out of " . $total_rows . " imported! </td></tr>";
+                echo "</table>";
                 
+                // echo $imported_rows . " out of " . $total_rows . " imported! ";
                 $conn->close();
                 fclose($handle);
             }
         } else {
-            getInfo("openError");
+            echo "Failed to open the file.";
         }
     } else {
-        getInfo("uploadError");
+        echo "Please upload a valid CSV file.";
     }
 }
+?>
+
+<?php
+
+
+if (isset($_GET['message'])) {
+    $msg = '<script>';
+    $msg = $msg . 'setTimeout(function(){ alert("' . htmlspecialchars($_GET['message']) . '"); }, 1000);';
+    $msg = $msg . '</script>';
+
+    echo $msg;
 }
+
+include_once "../utilities/inventory_footer.php";
+?>
