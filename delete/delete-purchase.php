@@ -16,13 +16,10 @@ $keywords = '';
 include '../utilities/inventory_menu.php';
 include_once '../db/config.php';
 
-$sql = "SELECT O.OrderID AS ID, C.Name AS Customer, S.Name AS Supplier, P.Name AS Product, ";
-$sql .= "O.Price AS Price, O.Quantity AS Quantity, O.Timestamp AS Time, O.User AS User ";
-$sql .= "FROM orders O ";
-$sql .= "LEFT JOIN customers C ON C.CustomerID = O.CustomerID ";
-$sql .= "LEFT JOIN suppliers S ON S.SupplierID = O.SupplierID ";
-$sql .= "INNER JOIN products P on P.ProductID = O.ProductID ";
-$sql .= "WHERE O.StoreID = " . $_SESSION['store_id'];
+$sql = "SELECT ID, Supplier, Product, Buyingprice, Quantity, Time, User FROM OrdersView ";
+$sql .= "WHERE StoreID = " . $_SESSION['store_id'] . " ";
+$sql .= "AND Ordertype = 'Purchase'";
+
 $result = $conn->query($sql);
 $conn->close();
 ?>
@@ -36,7 +33,7 @@ $conn->close();
                     <!-- <h1 id="title" class="text-center" style="text-align:center;">Inventory Management</h1> -->
 
                     <p id="description" class="text-center">
-                        Orders
+                        Delete Purchase
                     </p>
                 </div>
             </header>
@@ -51,10 +48,9 @@ $conn->close();
     <div id="table-options-container">
         <fieldset id="table-options">
             <div><label><input type=checkbox name=id checked onchange='sel()'>ID</label></div>
-            <div><label><input type=checkbox name=customer checked onchange='sel()'>Customer</label></div>
             <div><label><input type=checkbox name=supplier checked onchange='sel()'>Supplier<label></div>
             <div><label><input type=checkbox name=product checked onchange='sel()'>Product<label></div>
-            <div><label><input type=checkbox name=price checked onchange='sel()'>Price<label></div>
+            <div><label><input type=checkbox name=price checked onchange='sel()'>Buying Price<label></div>
             <div><label><input type=checkbox name=quantity checked onchange='sel()'>Quantity<label></div>
             <div><label><input type=checkbox name=time checked onchange='sel()'>Time<label></div>
             <div><label><input type=checkbox name=user checked onchange='sel()'>User<label></div>
@@ -69,7 +65,6 @@ $conn->close();
                 <col style="width:2%;">
                 <col style="width:10%;">
                 <col style="width:10%;">
-                <col style="width:10%;">
                 <col style="width:20%;">
                 <col style="width:2%;">
                 <col style="width:28%;">
@@ -78,10 +73,9 @@ $conn->close();
             <thead>
                 <tr>
                     <th data-field="ID" onclick=tsort3(0); ondblclick=tsort2(0);>ID</th>
-                    <th data-field="customer" onclick=tsort2(1);>Customer</th>
                     <th data-field="supplier" onclick=tsort(2);>Supplier </th>
                     <th data-field="product" onclick=tsort(2);>Product</th>
-                    <th data-field="price" onclick=tsort(2);>Price</th>
+                    <th data-field="price" onclick=tsort(2);>Buying Price</th>
                     <th data-field="quantity" onclick=tsort(2);>Quantity</th>
                     <th data-field="time" onclick=tsort(2);>Time</th>
                     <th data-field="user" onclick=tsort(2);>User</th>
@@ -101,14 +95,13 @@ $conn->close();
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr>";
                         echo "<td>" . $row["ID"] . "</td>";
-                        echo "<td>" . $row["Customer"] . "</td>";
                         echo "<td>" . $row["Supplier"] . "</td>";
                         echo "<td>" . $row["Product"] . "</td>";
-                        echo "<td>" . $row["Price"] . "</td>";
-                        echo "<td>" . $row["Quantity"] . "</td>";
+                        echo "<td>" . number_format($row["Buyingprice"]) . "</td>";
+                        echo "<td>" . number_format($row["Quantity"]) . "</td>";
                         echo "<td>" . $row["Time"] . "</td>";
                         echo "<td>" . $row["User"] . "</td>";
-                        echo "<td><a href='delete-order-response.php?id=" . $row['ID'] . "'><i class='bx bx-x' style='color:red;'></i></a></td>";
+                        echo "<td><a href='delete-purchase-response.php?id=" . $row['ID'] . "'><i class='bx bx-x' style='color:red;'></i></a></td>";
                         echo "</tr>";
                     }
                 } else {

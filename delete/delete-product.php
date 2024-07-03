@@ -9,20 +9,18 @@ if (!isset($_SESSION['user_id'])) {
 $home = '../';
 $home2 = '../';
 
-$title = 'Delete Order';
+$title = 'Delete Product';
 $desc = '';
 $keywords = '';
 
 include '../utilities/inventory_menu.php';
 include_once '../db/config.php';
 
-$sql = "SELECT O.OrderID AS ID, C.Name AS Customer, S.Name AS Supplier, P.Name AS Product, ";
-$sql .= "O.Price AS Price, O.Quantity AS Quantity, O.Timestamp AS Time, O.User AS User ";
-$sql .= "FROM orders O ";
-$sql .= "LEFT JOIN customers C ON C.CustomerID = O.CustomerID ";
-$sql .= "LEFT JOIN suppliers S ON S.SupplierID = O.SupplierID ";
-$sql .= "INNER JOIN products P on P.ProductID = O.ProductID ";
-$sql .= "WHERE O.StoreID = " . $_SESSION['store_id'];
+$sql = "SELECT P.ProductID AS ID, P.Name AS Name, P.Description AS Descr, ";
+$sql .= "C.Name AS Category FROM products P ";
+$sql .= "INNER JOIN categories C ";
+$sql .= "ON P.CategoryID = C.CategoryID ";
+$sql .= "WHERE P.StoreID = " . $_SESSION['store_id'];
 $result = $conn->query($sql);
 $conn->close();
 ?>
@@ -36,7 +34,7 @@ $conn->close();
                     <!-- <h1 id="title" class="text-center" style="text-align:center;">Inventory Management</h1> -->
 
                     <p id="description" class="text-center">
-                        Orders
+                        Delete Product
                     </p>
                 </div>
             </header>
@@ -51,13 +49,9 @@ $conn->close();
     <div id="table-options-container">
         <fieldset id="table-options">
             <div><label><input type=checkbox name=id checked onchange='sel()'>ID</label></div>
-            <div><label><input type=checkbox name=customer checked onchange='sel()'>Customer</label></div>
-            <div><label><input type=checkbox name=supplier checked onchange='sel()'>Supplier<label></div>
-            <div><label><input type=checkbox name=product checked onchange='sel()'>Product<label></div>
-            <div><label><input type=checkbox name=price checked onchange='sel()'>Price<label></div>
-            <div><label><input type=checkbox name=quantity checked onchange='sel()'>Quantity<label></div>
-            <div><label><input type=checkbox name=time checked onchange='sel()'>Time<label></div>
-            <div><label><input type=checkbox name=user checked onchange='sel()'>User<label></div>
+            <div><label><input type=checkbox name=name checked onchange='sel()'>Name</label></div>
+            <div><label><input type=checkbox name=category checked onchange='sel()'>Category<label></div>
+            <div><label><input type=checkbox name=desc checked onchange='sel()'>Description<label></div>
         </fieldset>
     </div>
     <!--<div>-->
@@ -67,24 +61,16 @@ $conn->close();
             data-show-columns="true" data-search="true" data-striped="true">
             <colgroup>
                 <col style="width:2%;">
-                <col style="width:10%;">
-                <col style="width:10%;">
-                <col style="width:10%;">
+                <col style="width:30%;">
                 <col style="width:20%;">
-                <col style="width:2%;">
-                <col style="width:28%;">
-                <col style="width:5%;">
+                <col style="width:48%;">
             </colgroup>
             <thead>
                 <tr>
                     <th data-field="ID" onclick=tsort3(0); ondblclick=tsort2(0);>ID</th>
-                    <th data-field="customer" onclick=tsort2(1);>Customer</th>
-                    <th data-field="supplier" onclick=tsort(2);>Supplier </th>
-                    <th data-field="product" onclick=tsort(2);>Product</th>
-                    <th data-field="price" onclick=tsort(2);>Price</th>
-                    <th data-field="quantity" onclick=tsort(2);>Quantity</th>
-                    <th data-field="time" onclick=tsort(2);>Time</th>
-                    <th data-field="user" onclick=tsort(2);>User</th>
+                    <th data-field="Name" onclick=tsort2(1);>Name</th>
+                    <th data-field="Category" onclick=tsort(2);>Category</th>
+                    <th data-field="Description" onclick=tsort(2);>Description</th>
                     <th data-field="Delete">Delete</th>
                 </tr>
             </thead>
@@ -101,18 +87,14 @@ $conn->close();
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr>";
                         echo "<td>" . $row["ID"] . "</td>";
-                        echo "<td>" . $row["Customer"] . "</td>";
-                        echo "<td>" . $row["Supplier"] . "</td>";
-                        echo "<td>" . $row["Product"] . "</td>";
-                        echo "<td>" . $row["Price"] . "</td>";
-                        echo "<td>" . $row["Quantity"] . "</td>";
-                        echo "<td>" . $row["Time"] . "</td>";
-                        echo "<td>" . $row["User"] . "</td>";
-                        echo "<td><a href='delete-order-response.php?id=" . $row['ID'] . "'><i class='bx bx-x' style='color:red;'></i></a></td>";
+                        echo "<td>" . $row["Name"] . "</td>";
+                        echo "<td>" . $row["Category"] . "</td>";
+                        echo "<td>" . $row["Descr"] . "</td>";
+                        echo "<td><a href='delete-product-response.php?id=" . $row['ID'] . "'><i class='bx bx-x' style='color:red;'></i></a></td>";
                         echo "</tr>";
                     }
                 } else {
-                    echo "<tr><td colspan='8'>No products found</td></tr>";
+                    echo "<tr><td colspan='6'>No products found</td></tr>";
                 }
                 ?>
 
